@@ -5,30 +5,31 @@ from contextlib import closing
 import os
 import re
 import sys
+from gtts import gTTS
+
 import subprocess
+import requests
 from datetime import datetime
 from tempfile import gettempdir
 from moviepy.editor import concatenate_audioclips, AudioFileClip
 import API_Keys
 
 
-
 class Podcast:
-    def __init__(self, input_string):
-        try:
-            with open(input_string, 'r') as f:
-                self.filename = input_string.split('/')[-1]
-                self.file_text = f.read()
-        except FileNotFoundError:
-            self.filename = ""
-            self.file_text = input_string
+    def __init__(self, input_prompt, filename):
+        self.filemname = filename
+        
+        
         
         self.host = PodcastAgent()
         self.guest = PodcastAgent()
+        self.host.voice_id = '89Hgu8DLVJRN9KMdp3YX'
+        self.guest.voice_id = 'DuPq5RcxRjhgnMPfHutO'
 
-        self.generate_podcast()        
+        self.process_initial_prompt(input_prompt)
+        print("Generate Podcast")
+        self.generate_podcast()
 
-        
     def __str__(self):
         out = ""
         host_b = True
@@ -43,10 +44,10 @@ class Podcast:
     def get_podcast(self):
         conversation = self.host.conversations[self.host.cur_conversation_id]
         out = []
-        out += [conversation[0].response["choices"][0]["message"]["content"] + "\n"]
+        out += [conversation[0].response.choices[0].message.content + "\n"]
         for exchange in conversation[1:]:
             prompt = exchange.prompt.content
-            response = exchange.response["choices"][0]["message"]["content"]
+            response = exchange.response.choices[0].message.content
             
             out += [f"{prompt}"]
             out += [f"{response}"]
@@ -54,63 +55,45 @@ class Podcast:
         return out
 
     def generate_podcast(self):
-        self.init_agents()
         for i in range(10):
+            print(f'iteration: {i}')
             self.guest.prompt(self.host.get_latest_message().content.replace("as an AI language model",""))
             self.host.prompt(self.guest.get_latest_message().content.replace("as an AI language model",""))
-        self.save_podcast()
+        # self.save_podcast()
 
-    def init_agents(self):
+    def process_initial_prompt(self, input_prompt):
         narator = PodcastAgent()
-        
-        narator.prompt(f"""
-        Read the following text
 
-        {self.file_text}
+        narator.prompt(f"""You are going to help me come up with an outline for a podcast.
+The theme for the podcast is {input_prompt}
+Extract specific keywords or phrases that are central to the theme. Note any specific names, places, events, or concepts mentioned. Based on the theme, brainstorm a list of potential topics that would interest the target audience. Ensure topics are varied yet cohesive within the podcast's theme. For each topic, develop subtopics or questions that would provoke discussion or provide informative content. Include potential anecdotes, data points, or relevant stories that could be incorporated.
 
-        You are going to be hosting a Podcast on the topics described in the text. I have three questions for you
-        1. Give me a summary of the text including any information that you think could be helpful while you’re interviewing your guest.
-        2. describe your ideal podcast guest, but direct it at "you" like "you are someone with strong knowledge of the topic....
-        3. describe an ideal podcast host, again direct it at "you"
-        4. generate me a filename for this text.
+Give me your answer in this exact format.
+HOST:
+A blurb of information for the host and 10 bullet points including specific questions they should ask
 
-        Answer in the following format
+GUEST:
+A blurb of informaiton for the guest and  10 bullet points with key information for the guest to be able the host’s questions with stories, anecdotes, facts, and opinion.
 
-        SUMMARY: [answer to questions 1]
 
-        GUEST: [Answer to question 2]
+Feel free to make up any information you want. 
+""")
 
-        HOST: [Answer to question 3]
 
-        FILENAME: [Answer to question 4]
-        """)
 
-        input_string = narator.get_latest_message().content
+        input_string = narator.get_latest_message().content.split('GUEST')
 
-        # Extracting the summary, traits, and guest sections
-        summary = re.search(r'SUMMARY: (.*?)GUEST:', input_string, re.DOTALL).group(1).strip()
-        guest_desc = re.search(r'GUEST: (.*?)HOST:', input_string, re.DOTALL).group(1).strip()
-        host_desc = re.search(r'HOST: (.*?)FILENAME:', input_string, re.DOTALL).group(1).strip()
-        filename = re.search(r'FILENAME: (.*)', input_string, re.DOTALL).group(1).strip()
-
-        if not self.filename:
-            self.filename = filename
-            dir = "../TestTexts/"
-            filepath = os.path.join(dir,filename)
-            with open(filepath, 'w') as file:
-                file.write(self.file_text)
-
-        self.host.prompt(f"you are going to interview me about: {summary} {host_desc} To start the interview, what would your first question be?")
-        self.guest.prompt(f"Today, I am going to interview you. here is the general topic of the interview: {summary}. {guest_desc} are you ready to start your interview? my next message will be my first question.")
+        self.host.prompt(f"you are going to interview me about: {input_string[0]} To start the interview, what would your first question be?")
+        self.guest.prompt(f"Today, I am going to interview you. here is the general topic of the interview: {input_string[1]}.  are you ready to start your interview? my next message will be my first question.")
         
 
 
 
     def save_podcast(self,podcast_description=""):
         # Create the "podcasts" folder if it doesn't exist
-        os.makedirs("../Podcasts", exist_ok=True)
+        os.makedirs("./Podcasts", exist_ok=True)
         # Save conversation to file
-        dir = os.path.join("../Podcasts/", self.filename)
+        dir = os.path.join("./Podcasts/", self.filename)
         os.makedirs(dir, exist_ok=True)
 
         filepath = os.path.join(dir, "script")
@@ -124,11 +107,6 @@ class Podcast:
         print(f"Podcast script saved to {filepath}")
 
 
-# 1. It is a verb that means to give or grant something to someone.
-# 2. It is often used in the context of honor, recognition, or a special privilege.
-# 3. The word starts with the letter "B" and has seven letters in total.
-# 4. Synonyms for this word include confer, present, and grant.
-# 5. The opposite of this word is "withhold."
     def concatenate_audioclips(self, audio_clip_paths, output_path):
         clips = [AudioFileClip(c) for c in audio_clip_paths]
         final_clip = concatenate_audioclips(clips)
@@ -136,29 +114,20 @@ class Podcast:
 
 
     def to_mp3(self):
-        session = Session(aws_access_key_id=API_Keys.AWS_ACCESS_KEY_ID,
-                          aws_secret_access_key=API_Keys.AWS_SECRET_ACCESS_KEY, 
-                          region_name="us-east-1")
-        polly = session.client("polly")
-
         pod = self.get_podcast()
         mp3_count = 1
         mp3_paths = []
-        directory = f"../Podcasts/{self.filename.replace('.txt','')}/"
+        directory = f"./Podcasts/{self.filename.replace('.txt','')}/"
 
         host_b = True
-        
+
         for message in pod:
             if host_b:
-                response = polly.synthesize_speech(VoiceId='Kendra',
-                                                OutputFormat='mp3', 
-                                                Text = message,
-                                                Engine = 'neural')
+                tts = gTTS(message)
+                # response = podcast.tts(message,podcast.host.voice_id)
             else:
-                response = polly.synthesize_speech(VoiceId='Joey',
-                                                OutputFormat='mp3', 
-                                                Text = message,
-                                                Engine = 'neural')
+                tts = gTTS(message)
+                # response = podcast.tts(message,podcast.guest.voice_id)
 
             filename = "clip" + str(mp3_count) + ".mp3"
             
@@ -168,12 +137,11 @@ class Podcast:
             if not os.path.exists(directory):
                 os.makedirs(directory)
 
-            with open(filepath, 'wb') as f:
-                f.write(response['AudioStream'].read())
+            tts.save(filepath)
 
             mp3_count+=1
             host_b = not host_b
-        
+
         self.concatenate_audioclips(mp3_paths, directory + "podcast.mp3")
 
         pattern = r"clip\d+\.mp3"  # Regular expression pattern to match file names
@@ -181,7 +149,27 @@ class Podcast:
             if re.match(pattern, filename):
                 file_path = os.path.join(directory, filename)
                 os.remove(file_path)
-                print(f"Removed file: {file_path}")
+        print(f"Removed file: {file_path}")
 
 
+    def tts(self,text,voice_id):
+        CHUNK_SIZE = 1024
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+
+        headers = {
+            "Accept": "audio/mpeg",
+            "Content-Type": "application/json",
+            "xi-api-key": API_Keys.ELEVENLABS_API_KEY
+        }
+
+        data = {
+            "text": text,
+            "model_id": "eleven_monolingual_v1",
+            "voice_settings": {
+                "stability": 0.5,
+                "similarity_boost": 0.5
+            }
+        }
+
+        return requests.post(url, json=data, headers=headers)
 

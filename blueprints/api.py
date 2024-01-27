@@ -1,10 +1,17 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import (Blueprint, 
+                   request, 
+                   jsonify, 
+                   current_app, 
+                   send_file, 
+                   make_response)
 from flask.views import MethodView
+from os import path, environ
+
 
 cast_api = Blueprint('cast_api', __name__)
 
-class CastAPI(MethodView):
 
+class CastAPI(MethodView):
 
     # GET: 
     # Returns the list of available personalities, and their images 
@@ -24,7 +31,14 @@ class CastAPI(MethodView):
 
     # returns an MP4 of the generated podcast
     def post(self):
-        pass
+        video_path = f'{current_app.config["MEDIA_PATH"]}/JoeRoganBenShapiro.mp4'
+
+
+        if path.exists(video_path):
+            response = make_response(send_file(video_path, mimetype='video/mp4'))
+            return response
+        else:
+            return jsonify({'error': 'Video not found'}), 404
     
 
 cast_view = CastAPI.as_view('cast_api')

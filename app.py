@@ -1,8 +1,10 @@
-from flask import flask
-
-from blueprints.api import cast_api
-from os import path
 from flask import Flask
+import sys
+from blueprints.api import cast_api
+from os import path, environ
+from flask import Flask
+import logging
+import settings
 
 app = Flask(__name__)
 
@@ -13,3 +15,21 @@ def construct_app():
     app = Flask(app_name, root_path=app_dir) 
 
     app.register_blueprint(cast_api)
+
+    app.config.from_object('settings')
+
+    # Logging
+    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+    logging.basicConfig(level=logging.DEBUG)
+    app.logger.setLevel(app.config.get('LOG_LEVEL', logging.INFO))
+    app.debug = True
+
+    return app
+
+
+app = construct_app()
+
+if __name__ == '__main__':
+    environ['FLASK_DEBUG'] = 'development'
+    config = app.config
+    app.run(debug=True,host='0.0.0.0', port=config['APP_PORT'])

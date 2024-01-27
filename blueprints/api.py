@@ -3,6 +3,7 @@ from flask import (Blueprint,
                    jsonify, 
                    current_app, 
                    send_file, 
+                    url_for,
                    make_response)
 from flask.views import MethodView
 from os import path, environ
@@ -10,13 +11,28 @@ from os import path, environ
 
 cast_api = Blueprint('cast_api', __name__)
 
+# this is a dummy mock method until we have the actual podcast generator
+def get_podcast(guest, host, topic, duration):
+    print(f'GENERATING PODCAST:')
+    print(f'\t GUEST:{guest},')
+    print(f'\t HOST:{host},')
+    print(f'\t TOPIC:{topic},')
+    print(f'\t DURATION:{duration},')
+    return f'JoeRoganBenShapiro.mp4'
+
 
 class CastAPI(MethodView):
 
     # GET: 
     # Returns the list of available personalities, and their images 
     def get(self):
-        return 'Testing Get'
+        personalities = current_app.config['PERSONALITIES']
+        # we need to make a mapping from personalities to their images
+        # the images will be named the exact same as the personalities
+        # they will be stored in the static/profiles folder
+        personality_profiles = { personality: url_for('static', filename=f'profiles/{personality}.jpg', _external=True) for personality in personalities }
+
+        return jsonify(personality_profiles), 200
     
 
     # POST:
@@ -31,12 +47,20 @@ class CastAPI(MethodView):
 
     # returns an MP4 of the generated podcast
     def post(self):
-        video_path = f'{current_app.config["MEDIA_PATH"]}/JoeRoganBenShapiro.mp4'
-
-
+        video_name = get_podcast(request.json['guest'], 
+                                 request.json['host'], 
+                                 request.json['topic'], 
+                                 request.json['duration'])  
+        video_path = path.join(current_app.config['PODCASTS_PATH'], video_name)
         if path.exists(video_path):
-            response = make_response(send_file(video_path, mimetype='video/mp4'))
-            return response
+            body = {
+                'guest': request.json['guest'],
+                'host': request.json['host'],
+                'topic': request.json['topic'],
+                'duration': request.json['duration'],
+                'video_url': url_for('static', filename=video_path.split('static/')[1], _external=True)
+            }
+            return make_response(body, 200)
         else:
             return jsonify({'error': 'Video not found'}), 404
     

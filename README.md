@@ -80,3 +80,28 @@ Response:
 ```
 
 
+# Hosting
+
+- To host the server and make it public outside the local network we are using are portforwarding using a tunnel service called ngrok
+
+- To install ngrok on mac
+```
+brew install ngrok/ngrok/ngrok
+```
+- sign up for a free account on ngrok.com: 
+
+- Get your auth token from the ngrok dashboard
+- authenticate your account on your local machine
+```
+ngrok config add-authtoken <auth-token-goes-here>
+```
+
+- Now to start up the server and make it public
+- take note of the port the server is running on
+- in this case it is 5002
+- Then run the following command to expose the port
+```
+ngrok http 5002
+```
+- This will open up a tunnel to the port 5002 on your local machine and it should display a dashboard with the url to access the server. Use this url to make requests to the server from outside the local network
+

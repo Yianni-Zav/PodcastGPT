@@ -1,12 +1,10 @@
 from Agents import PodcastAgent
-from boto3 import Session
-from botocore.exceptions import BotoCoreError, ClientError
 from contextlib import closing
 import os
 import re
 import sys
 from gtts import gTTS
-
+from mutagen.mp3 import MP3
 import subprocess
 import requests
 from datetime import datetime

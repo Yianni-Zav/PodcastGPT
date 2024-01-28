@@ -9,7 +9,7 @@ from flask.views import MethodView
 from os import path, environ
 from flask_cors import CORS, cross_origin
 from Podcast import get_podcast
-from audiotovideo import get_video_from_audio, get_word_level_transcript
+# from audiotovideo import get_video_from_audio, get_word_level_transcript
 
 
 cast_api = Blueprint('cast_api', __name__)
@@ -51,6 +51,8 @@ class CastAPI(MethodView):
     # returns an MP4 of the generated podcast
     @cross_origin()
     def post(self):
+
+        print(request.json)
         
         video_path= get_podcast(request.json['guest'], 
                                  request.json['host'], 
@@ -61,13 +63,15 @@ class CastAPI(MethodView):
         
          
         # video_path = path.join(current_app.config['PODCASTS_PATH'], video_name)
+        video_url = url_for('static', filename=video_path.split('static/')[1], _external=True)
         if path.exists(video_path):
             body = {
                 'guest': request.json['guest'],
                 'host': request.json['host'],
                 'topic': request.json['topic'],
                 'duration': request.json['duration'],
-                'video_url': url_for('static', filename=video_path.split('static/')[1], _external=True)
+                'video': video_url
+                # 'video_url': url_for('static', filename=video_path.split('static/')[1], _external=True)
             }
             return make_response(body, 200)
         else:

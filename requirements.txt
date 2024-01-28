@@ -1,3 +1,4 @@
 flask
-flask-cors==3.0.10
-
+git+https://github.com/m-bain/whisperx.git
+moviepy
+flask-cors

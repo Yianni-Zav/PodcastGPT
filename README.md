@@ -2,6 +2,8 @@
 
 - A Podcast generator for celebrity personalities
 
+![Alt Text](./cover.jpg)
+
 
 # Setup
 

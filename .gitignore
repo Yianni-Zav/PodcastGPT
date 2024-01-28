@@ -2,6 +2,9 @@
 __pycache__/*
 .DS_STORE
 */.DS_STORE
-static/*
+static/client/
+static/audio/
+static/podcasts/
+
 
 API_Keys.py

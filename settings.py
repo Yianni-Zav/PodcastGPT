@@ -35,3 +35,5 @@ PERSONALITY_AUDIO_SAMPLES = {
     'joe_biden': f'{AUDIO_SAMPLES_PATH}/joe_biden.wav',
 }
 
+PORTWORD_TUNNEL_ON = False
+LOCAL_TTS_ON = False

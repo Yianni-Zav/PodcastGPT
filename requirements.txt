@@ -6,3 +6,4 @@ gtts
 mutagen
 pillow
 pyngrok
+pydub

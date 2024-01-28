@@ -11,18 +11,25 @@ from datetime import datetime
 from tempfile import gettempdir
 from moviepy.editor import concatenate_audioclips, AudioFileClip
 import API_Keys
+from PIL import Image
+from moviepy.editor import VideoFileClip, AudioFileClip, CompositeVideoClip, ImageClip
+
+from settings import *
 
 
 class Podcast:
-    def __init__(self, input_prompt, filename):
-        self.filemname = filename
-        
+    def __init__(self, input_prompt, filename, host_name, guest_name):
+        self.output_filename = filename
+  
         
         
         self.host = PodcastAgent()
         self.guest = PodcastAgent()
         self.host.voice_id = '89Hgu8DLVJRN9KMdp3YX'
         self.guest.voice_id = 'DuPq5RcxRjhgnMPfHutO'
+
+        self.host.name = host_name
+        self.guest.name = guest_name
 
         self.process_initial_prompt(input_prompt)
         print("Generate Podcast")
@@ -53,7 +60,7 @@ class Podcast:
         return out
 
     def generate_podcast(self):
-        for i in range(10):
+        for i in range(3):
             print(f'iteration: {i}')
             self.guest.prompt(self.host.get_latest_message().content.replace("as an AI language model",""))
             self.host.prompt(self.guest.get_latest_message().content.replace("as an AI language model",""))
@@ -87,22 +94,22 @@ Feel free to make up any information you want.
 
 
 
-    def save_podcast(self,podcast_description=""):
-        # Create the "podcasts" folder if it doesn't exist
-        os.makedirs("./Podcasts", exist_ok=True)
-        # Save conversation to file
-        dir = os.path.join("./Podcasts/", self.filename)
-        os.makedirs(dir, exist_ok=True)
+    # def save_podcast(self,podcast_description=""):
+    #     # Create the "podcasts" folder if it doesn't exist
+    #     os.makedirs("./Podcasts", exist_ok=True)
+    #     # Save conversation to file
+    #     dir = os.path.join("./Podcasts/", self.filename)
+    #     os.makedirs(dir, exist_ok=True)
 
-        filepath = os.path.join(dir, "script")
+    #     filepath = os.path.join(dir, "script")
         
-        conversation = self.host.conversations[self.host.cur_conversation_id]
-        with open(filepath, "w") as file:
-            file.write("Podcast Conversation\n")
-            file.write(f"Description: {podcast_description}\n\n")
-            file.write(str(self))
+    #     conversation = self.host.conversations[self.host.cur_conversation_id]
+    #     with open(filepath, "w") as file:
+    #         file.write("Podcast Conversation\n")
+    #         file.write(f"Description: {podcast_description}\n\n")
+    #         file.write(str(self))
 
-        print(f"Podcast script saved to {filepath}")
+    #     print(f"Podcast script saved to {filepath}")
 
 
     def concatenate_audioclips(self, audio_clip_paths, output_path):
@@ -115,7 +122,9 @@ Feel free to make up any information you want.
         pod = self.get_podcast()
         mp3_count = 1
         mp3_paths = []
-        directory = f"./Podcasts/{self.filename.replace('.txt','')}/"
+        directory = f"{PODCASTS_PATH}/{self.output_filename.split('.')[0]}/"
+        durations = []
+
 
         host_b = True
 
@@ -136,11 +145,14 @@ Feel free to make up any information you want.
                 os.makedirs(directory)
 
             tts.save(filepath)
-
+            
+            durations += [MP3(filepath).info.length]
             mp3_count+=1
             host_b = not host_b
 
-        self.concatenate_audioclips(mp3_paths, directory + "podcast.mp3")
+        podcast_file_name = directory + self.output_filename
+
+        self.concatenate_audioclips(mp3_paths, podcast_file_name)
 
         pattern = r"clip\d+\.mp3"  # Regular expression pattern to match file names
         for filename in os.listdir(directory):
@@ -148,6 +160,41 @@ Feel free to make up any information you want.
                 file_path = os.path.join(directory, filename)
                 os.remove(file_path)
         print(f"Removed file: {file_path}")
+
+        return podcast_file_name, durations
+    
+
+
+    def create_mp4(self, image1,image2, durations, audio_file_path, output_file_path):
+        # List of image file paths
+        image_files = [image1, image2]
+            
+        # Initialize a list to store video clips
+        video_clips = []
+        start = 0
+        # Load images and create video clips
+        for i in range(len(durations)):
+            
+            img_path = image_files[i % len(image_files)]
+            img_clip = ImageClip(img_path, duration=durations[i]).set_start(start)
+            start += durations[i]
+            video_clips.append(img_clip)
+        
+        # Concatenate video clips to create the final video
+        final_video = CompositeVideoClip(video_clips,size=(512,512))
+        
+        # Load an audio clip (optional)
+        audio_clip = AudioFileClip(audio_file_path).set_start(0)
+        if audio_clip.duration > final_video.duration:
+            audio_clip = audio_clip.subclip(0, final_video.duration).set_start(0)
+        
+        
+        # Set the audio of the final video (optional)
+        final_video = final_video.set_audio(audio_clip)
+        
+        # Export the final video as an MP4 file
+        final_video.write_videofile(output_file_path, codec="libx264", fps=30)
+    
 
 
     def tts(self,text,voice_id):
@@ -170,4 +217,19 @@ Feel free to make up any information you want.
         }
 
         return requests.post(url, json=data, headers=headers)
+    
+
+
+def get_podcast(guest_name, host_name, topic, duration):
+    
+    output_file_name = f"{guest_name}_{host_name}_{topic}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.mp3"
+    new_podcast = Podcast(topic, output_file_name, host_name, guest_name)
+    podcast_file_path, durations = new_podcast.to_mp3()
+    host_image = PERSONALITY_PROFILES[host_name]
+    guest_image = PERSONALITY_PROFILES[guest_name]
+    video_output_file_path = f"{PODCASTS_PATH}/{output_file_name.split('.')[0]}.mp4"
+    new_podcast.create_mp4(host_image, guest_image, durations, podcast_file_path, video_output_file_path)
+    return podcast_file_path
+
+    
 

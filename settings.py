@@ -21,3 +21,5 @@ PERSONALITIES = [
   'barack_obama',
 ]
 
+PERSONALITY_PROFILES = { personality: f'{PROFILES_PATH}/{personality}.jpg' for personality in PERSONALITIES }
+

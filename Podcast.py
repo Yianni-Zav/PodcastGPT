@@ -229,7 +229,8 @@ def get_podcast(guest_name, host_name, topic, duration):
     guest_image = PERSONALITY_PROFILES[guest_name]
     video_output_file_path = f"{PODCASTS_PATH}/{output_file_name.split('.')[0]}.mp4"
     new_podcast.create_mp4(host_image, guest_image, durations, podcast_file_path, video_output_file_path)
-    return podcast_file_path
+    print(video_output_file_path)
+    return video_output_file_path
 
     
 

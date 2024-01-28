@@ -29,7 +29,10 @@ function selectCard(selectedCard, type){
     selectedCard.classList.add('selected-card');
 
     // Retrieve the name from the selected container
-    const name = selectedCard.querySelector('.name').innerText;
+    var name = selectedCard.querySelector('.name').innerText;
+    var nameArr = name.split(" ");
+    name = nameArr.join("_");
+    name = name.toLowerCase();
     if (type == 'host'){
         hostName = name;
     }
@@ -73,57 +76,74 @@ function sendPodcastData() {
     const loadingIndicator = document.getElementById('loadingIndicator');
     loadingIndicator.style.display = 'flex';
 
+    console.log(hostName);
+    console.log(guestName);
+
     const podcastData = {
-        host: hostName,
-        guest: guestName,
-        topic: episodeTopic,
-        duration: Number(episodeDuration)
+        'host': hostName,
+        'guest': guestName,
+        'topic': episodeTopic,
+        'duration': Number(episodeDuration)
     };
 
-    setTimeout(function() {
+    // send data to backend using fetch 
+    fetch('http://localhost:5002/cast', {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(podcastData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Data sent to the backend:', data);
+        // Add any additional logic here based on the backend response
+        const videoUrl = data.video;
+        // Set the video source dynamically
+        const videoElement = document.getElementById('podcast-video');
 
-        // send data to backend using fetch 
-        fetch('http://localhost:5002/cast', {
-            method: 'POST',
-            mode: 'cors',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(podcastData),
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Data sent to the backend:', data);
-            // Add any additional logic here based on the backend response
-            const videoUrl = data.video;
-            // Set the video source dynamically
-            const videoElement = document.getElementById('podcast-video');
+        // Show the video element
+        videoElement.style.display = 'block';
 
-            // Show the video element
-            videoElement.style.display = 'block';
+        // Hide the loading indicator
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        loadingIndicator.style.display = 'none';
 
-            // Hide the loading indicator
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            loadingIndicator.style.display = 'none';
-
-            videoElement.src = videoUrl;
-        })
-        .catch(error => {
-            console.error('Error sending data to the backend:', error);
-            // Handle errors if needed
-            // Hide the loading indicator in case of an error
-            loadingIndicator.style.display = 'none';
-        });
-
-    },4000)
+        videoElement.src = videoUrl;
+    })
+    .catch(error => {
+        console.error('Error sending data to the backend:', error);
+        // Handle errors if needed
+        // Hide the loading indicator in case of an error
+        loadingIndicator.style.display = 'none';
+    });
     
 }
 
 document.getElementById('generateButton').addEventListener('click', function() {
+
     // Call functions to get selected data
     getTopic();
     getDuration();
-
     // Call the function to send data to the backend
     sendPodcastData();
+});
+
+document.addEventListener('mousemove', (e) => {
+    const cursor = document.getElementById('cursor');
+    cursor.style.left = e.pageX + 'px';
+    cursor.style.top = e.pageY + 'px';
+});
+
+document.addEventListener('mouseenter', () => {
+    const cursor = document.getElementById('cursor');
+    cursor.style.width = '200px';
+    cursor.style.height = '200px';
+});
+
+document.addEventListener('mouseleave', () => {
+    const cursor = document.getElementById('cursor');
+    cursor.style.width = '500px';
+    cursor.style.height = '500px';
 });

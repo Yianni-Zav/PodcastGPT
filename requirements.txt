@@ -1,4 +1,8 @@
 flask
-git+https://github.com/m-bain/whisperx.git
 moviepy
 flask-cors
+openai
+gtts
+mutagen
+pillow
+pyngrok

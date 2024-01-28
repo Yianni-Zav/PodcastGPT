@@ -79,6 +79,12 @@ Response:
 }
 ```
 
+# Client
+
+- to go to the frontend website go to the following url
+- replace the ip address with the ip address of the server
+- `http://127.0.0.1:5002/client/index.html`
+
 
 # Hosting
 
@@ -104,4 +110,12 @@ ngrok config add-authtoken <auth-token-goes-here>
 ngrok http 5002
 ```
 - This will open up a tunnel to the port 5002 on your local machine and it should display a dashboard with the url to access the server. Use this url to make requests to the server from outside the local network
+
+
+# Profile image cropping
+
+- to crop the profile images to a square use the following command
+```
+ffmpeg -i lex_fridman.jpg -vf "scale='if(gt(iw/ih,1),512*(iw/ih),512)':'if(gt(iw/ih,1),512,512*(ih/iw))',crop=512:512" lex_fridman1.jpg
+```
 

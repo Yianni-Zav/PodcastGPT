@@ -10,7 +10,7 @@
 
 
 
-import whisperx
+# import whisperx
 import gc
 import json
 from moviepy.editor import ImageClip, TextClip, concatenate_videoclips, AudioFileClip, CompositeVideoClip
@@ -23,31 +23,32 @@ access_token = '<hf access token>'
 batch_size = 16 # reduce if low on GPU mem
 compute_type = "float32" # change to "int8" if low on GPU mem (may reduce accuracy)
 
-def get_word_level_transcript(audio_file_path):
-    model = whisperx.load_model("small", device, compute_type=compute_type)
-    audio = whisperx.load_audio(audio_file_path)
-    result = model.transcribe(audio, batch_size=batch_size)
+# def get_word_level_transcript(audio_file_path):
+#     model = whisperx.load_model("small", device, compute_type=compute_type)
+#     audio = whisperx.load_audio(audio_file_path)
+#     result = model.transcribe(audio, batch_size=batch_size)
 
-    model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
-    result = whisperx.align(result["segments"], model_a, metadata, audio, device, return_char_alignments=False)
+#     model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
+#     result = whisperx.align(result["segments"], model_a, metadata, audio, device, return_char_alignments=False)
 
-    # temporary output file for testing
-    output_file = "/Users/rudolfkischer/Projects/PodcastGPT/static/audio/JoeRoganBenShapiroTEST.json"
-    with open(output_file, 'w') as outfile:
-        json.dump(result, outfile)
+#     # temporary output file for testing
+#     # output_file = "/Users/rudolfkischer/Projects/PodcastGPT/static/audio/JoeRoganBenShapiroTEST.json"
+#     # with open(output_file, 'w') as outfile:
+#     #     json.dump(result, outfile)
 
-    diarize_model = whisperx.DiarizationPipeline(use_auth_token=access_token, device=device)
-    diarize_segments = diarize_model(audio)
-    result = whisperx.assign_word_speakers(diarize_segments, result)
-    print(diarize_segments)
-    print(result["segments"])
+#     diarize_model = whisperx.DiarizationPipeline(use_auth_token=access_token, device=device)
+#     diarize_segments = diarize_model(audio)
+#     result = whisperx.assign_word_speakers(diarize_segments, result)
+#     print(diarize_segments)
+#     print(result["segments"])
 
-    diarized_output_file = "/Users/rudolfkischer/Projects/PodcastGPT/static/audio/JoeRoganBenShapiroDIARIZED.json"
-    with open(diarized_output_file, 'w') as outfile:
-        json.dump(result, outfile)
+#     # put the word level transcript in the same folder as the audio file
+#     diarized_output_file = audio_file_path.split('.')[0] + 'DIARIZED.json'
+#     with open(diarized_output_file, 'w') as outfile:
+#         json.dump(result, outfile)
     
 
-    return result
+#     return result
 
 def create_freeze_frame(clip, end_time):
     """Create a freeze frame from the last frame of the clip, extended until end_time."""
@@ -101,7 +102,7 @@ def get_video_from_audio(audio_file_path,
     
     # diarized_transcript = get_word_level_transcript(audio_file_path)
     diarized_transcript = json.load(open(transcript_file_path))
-    personality_profiles = { personality: f'{PROFILES_PATH}/{personality}.jpg' for personality in PERSONALITIES }
+    personality_profiles = PERSONALITY_PROFILES
     guest_profile = personality_profiles[guest_name]
     host_profile = personality_profiles[host_name]
 
@@ -137,6 +138,8 @@ def get_video_from_audio(audio_file_path,
     final_clip = CompositeVideoClip(clips, size=(512,512)).set_duration(audio_clip.duration)
     final_clip = final_clip.set_audio(audio_clip)
     final_clip.write_videofile(f'{PODCASTS_PATH}/{guest_name}_{host_name}.mp4', fps=24)
+
+
 
 def main():
     # result = get_word_level_transcript(audio_file)

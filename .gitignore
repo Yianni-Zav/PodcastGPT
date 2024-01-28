@@ -5,3 +5,9 @@ __pycache__/*
 static/*
 myenv/
 .venv/
+static/client/
+static/audio/
+static/podcasts/
+
+
+API_Keys.py

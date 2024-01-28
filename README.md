@@ -79,6 +79,7 @@ Response:
 }
 ```
 
+
 # Hosting
 
 - To host the server and make it public outside the local network we are using are portforwarding using a tunnel service called ngrok
@@ -103,3 +104,4 @@ ngrok config add-authtoken <auth-token-goes-here>
 ngrok http 5002
 ```
 - This will open up a tunnel to the port 5002 on your local machine and it should display a dashboard with the url to access the server. Use this url to make requests to the server from outside the local network
+

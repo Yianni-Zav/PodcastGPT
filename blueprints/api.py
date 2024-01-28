@@ -7,6 +7,7 @@ from flask import (Blueprint,
                    make_response)
 from flask.views import MethodView
 from os import path, environ
+from flask_cors import CORS, cross_origin
 
 
 cast_api = Blueprint('cast_api', __name__)
@@ -22,9 +23,9 @@ def get_podcast(guest, host, topic, duration):
 
 
 class CastAPI(MethodView):
-
     # GET: 
     # Returns the list of available personalities, and their images 
+    @cross_origin()
     def get(self):
         personalities = current_app.config['PERSONALITIES']
         # we need to make a mapping from personalities to their images
@@ -46,6 +47,7 @@ class CastAPI(MethodView):
     #}
 
     # returns an MP4 of the generated podcast
+    @cross_origin()
     def post(self):
         video_name = get_podcast(request.json['guest'], 
                                  request.json['host'], 

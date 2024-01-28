@@ -140,6 +140,7 @@ input {
     cursor: pointer;
     transition: background 0.3s ease;
     font-family: "montserrat", sans-serif;
+    min-width: 150px;
 }
 
 #generateButton:hover {

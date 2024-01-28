@@ -6,10 +6,12 @@ import json
 import API_Keys
 
 import openai
+
 import tiktoken
 
 openai.api_key = API_Keys.OPENAI_KEY
 OPENAI_MODEL = "gpt-3.5-turbo"
+# client = AsyncOpenAI()
 
 @dataclass
 class Message:
@@ -23,11 +25,21 @@ class Exchange:
 
 # look into presence penalties!!!!!
 def call_GPT(agent):
+    messages = agent.get_messages_for_call()
+    message_strs = [message['content'] for message in messages]
+    print(len(''.join(message_strs)))
+    while len(''.join(message_strs)) >= 20000:
+        messages = messages[:1] + messages[3:]
+        message_strs = [message['content'] for message in messages]
 
-    response = openai.ChatCompletion.create(model=OPENAI_MODEL, 
-                                            messages=agent.get_messages_for_call(),
-                                            temperature=agent.temperature)
-    return response
+    # print(message_strs)
+    # print(agent.get_messages_for_call())
+    completion = openai.chat.completions.create(
+        model=OPENAI_MODEL,
+        messages=messages
+    )
+
+    return completion
 
 
 class PodcastAgent:
@@ -39,6 +51,7 @@ class PodcastAgent:
         self.message_to_prompt = ""
         self.temperature = 0
         self.system_settings = {}
+        self.voice_id = ""
 
     # GETTERS
     def get_cur_convo(self) -> List[Message]:
@@ -69,6 +82,9 @@ class PodcastAgent:
     def set_personality(self,personality):
         self.system_settings[self.cur_conversation_id] = personality
 
+    def set_voice_id(self,id):
+        self.voice_id = id
+
     # PUBLIC METHODS
     def prompt(self,prompt,new_conversation: bool = False):
         if new_conversation or self.cur_conversation_id is None:
@@ -95,7 +111,7 @@ class PodcastAgent:
             response = exchange.response
 
             user_message = Message(role="user", content=prompt.content)
-            assistant_message = Message(role="assistant", content=response["choices"][0]["message"]["content"])
+            assistant_message = Message(role="assistant", content=response.choices[0].message.content)
             
             messages.append(user_message)
             messages.append(assistant_message)

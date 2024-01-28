@@ -3,16 +3,22 @@ import sys
 from blueprints.api import cast_api
 from os import path, environ
 from flask import Flask
+from flask_cors import CORS
 import logging
 import settings
 
 app = Flask(__name__)
 
 def construct_app():
+
+    global app  # Declare app as a global variable
+
     app_dir = path.dirname(path.realpath(__file__))
     app_name = path.basename(app_dir)
 
     app = Flask(app_name, root_path=app_dir) 
+
+    CORS(app)
 
     app.register_blueprint(cast_api)
 

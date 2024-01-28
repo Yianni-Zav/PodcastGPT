@@ -1,0 +1,73 @@
+body {
+    margin: 0;
+    color: white;
+    background: #07061f;
+}
+
+section {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 400px;
+    padding: 100px 20vw;
+}
+
+/* .red {
+    background: red;
+} */
+
+.waves {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    transform: rotate(180deg);
+}
+
+.waves svg {
+    position: relative;
+    display: block;
+    width: calc(108% + 1.3px);
+    height: 182px;
+    transform: rotateY(180deg);
+}
+
+.waves .shape-fill {
+    fill: #61E9D9;
+}
+
+.waves2 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+}
+
+.waves2 svg {
+    position: relative;
+    display: block;
+    width: calc(100% + 1.3px);
+    height: 236px;
+    transform: rotateY(180deg);
+}
+
+.waves2 .shape-fill {
+    fill: #8aa6da;
+}
+
+.spacer {
+    aspect-ratio: 960/300;
+    width: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.layered-waves {
+    background-image: url(./layered-waves.svg);
+}

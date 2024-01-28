@@ -1,10 +1,15 @@
 from Agents import PodcastAgent
-from boto3 import Session
-from botocore.exceptions import BotoCoreError, ClientError
 from contextlib import closing
 import os
 import re
 import sys
+<<<<<<< Updated upstream
+=======
+from gtts import gTTS
+from mutagen.mp3 import MP3
+
+
+>>>>>>> Stashed changes
 import subprocess
 from datetime import datetime
 from tempfile import gettempdir
@@ -144,7 +149,13 @@ class Podcast:
         pod = self.get_podcast()
         mp3_count = 1
         mp3_paths = []
+<<<<<<< Updated upstream
         directory = f"../Podcasts/{self.filename.replace('.txt','')}/"
+=======
+        durations = []
+
+        directory = f"./Podcasts/{self.filename.replace('.txt','')}/"
+>>>>>>> Stashed changes
 
         host_b = True
         
@@ -168,15 +179,20 @@ class Podcast:
             if not os.path.exists(directory):
                 os.makedirs(directory)
 
+<<<<<<< Updated upstream
             with open(filepath, 'wb') as f:
                 f.write(response['AudioStream'].read())
+=======
+            tts.save(filepath)
+            durations += [MP3(filepath).info.length]
+>>>>>>> Stashed changes
 
             mp3_count+=1
             host_b = not host_b
         
         self.concatenate_audioclips(mp3_paths, directory + "podcast.mp3")
 
-        pattern = r"clip\d+\.mp3"  # Regular expression pattern to match file names
+        pvirtualenv .venvattern = r"clip\d+\.mp3"  # Regular expression pattern to match file names
         for filename in os.listdir(directory):
             if re.match(pattern, filename):
                 file_path = os.path.join(directory, filename)

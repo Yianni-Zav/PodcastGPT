@@ -19,7 +19,7 @@ from settings import *
 
 device = "cpu" 
 audio_file = "/Users/rudolfkischer/Projects/PodcastGPT/static/audio/JoeRoganBenShapiro.mp3"
-access_token = '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'
+access_token = '<hf access token>'
 batch_size = 16 # reduce if low on GPU mem
 compute_type = "float32" # change to "int8" if low on GPU mem (may reduce accuracy)
 

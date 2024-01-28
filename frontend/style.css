@@ -1,4 +1,12 @@
-
+/* body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background: url('./wave-background.svg') center/cover no-repeat;
+    color: #fcfcfc;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+} */
 
 @keyframes backgroundFloat {
     from {
@@ -72,7 +80,7 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgb(54, 50, 66);
+    background-color: #333;
     color: #fff;
     padding: 10px;
     overflow: hidden;
@@ -130,82 +138,16 @@ input {
 
 #generateButton {
     padding: 10px 20px;
-    width: 30%;
-    height: 100%;
     font-size: 16px;
-    background-color: #07061f;
+    background-color: #3b6d8f;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background 0.3s ease;
-    font-family: "montserrat", sans-serif;
+    background-image: linear-gradient(to right, #4CAF50, #45a049);
 }
 
 #generateButton:hover {
-    background-color: #282566;
-}
-
-.blob-motion {
-    position: absolute;
-    transform: translateY(20%);
-}
-
-#conversation-topic2 {
-    text-align: center;
-    padding: 5px;
-    width: 100%;
-}
-
-#podcast-video {
-    max-width: 512px;
-    max-height: 512px;
-    margin-top: 10%;
-}
-
-  
-.loader-container {
-    display: flex;
-    align-items: center;
-    margin-top: 10%;
-}
-  
-.wave {
-    width: 15px;
-    height: 80px;
-    background-color: #07061f;
-    margin: 0 5px;
-    animation: animate 1s linear infinite;
-}
-
-
-@keyframes animate {
-    0%, 100% {
-        transform: scaleY(1);
-    }
-    50% {
-        transform: scaleY(0.5);
-    }
-}
-
-.wave:nth-child(1) {
-    animation-delay: 0s;
-}
-.wave:nth-child(2) {
-    animation-delay: 0.3s;
-}
-.wave:nth-child(3) {
-    animation-delay: 0.6s;
-}
-.wave:nth-child(4) {
-    animation-delay: 0.9s;
-}
-.wave:nth-child(5) {
-    animation-delay: 0.6s;
-}
-.wave:nth-child(6) {
-    animation-delay: 0.3s;
-}
-.wave:nth-child(7) {
-    animation-delay: 0s;
+    background: linear-gradient(to right, #3b6d8f, #ac4caf); 
 }

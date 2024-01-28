@@ -13,9 +13,9 @@ section {
     padding: 100px 20vw;
 }
 
-.purple {
-    background-color: #8aa6da;
-}
+/* .red {
+    background: red;
+} */
 
 .waves {
     position: absolute;
@@ -70,12 +70,4 @@ section {
 
 .layered-waves {
     background-image: url(./layered-waves.svg);
-}
-
-.layered-waves2 {
-    background-image: url(./layered-waves2.svg);
-}
-
-.flip {
-    transform: rotate(180deg);
 }

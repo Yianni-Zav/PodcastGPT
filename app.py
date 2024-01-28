@@ -9,8 +9,17 @@ import logging
 from settings import *
 import shutil
 from pyngrok import ngrok 
+from API_Keys import NGROK_API_KEY
 
 app = Flask(__name__)
+
+try:
+    ngrok.set_auth_token(NGROK_API_KEY)
+    print('NGROK API KEY SET')
+except:
+    print('NGROK API KEY FAILED')
+    pass
+
 
 def construct_app():
 
@@ -53,22 +62,25 @@ if __name__ == '__main__':
     # http_tunnel = tunnels[0]
     # if len(tunnels) >= 1:
     # else:
-    tunnels = ngrok.get_tunnels() 
-    for tunnel in tunnels:
-        ngrok.disconnect(tunnel.public_url)
+    try:
+        tunnels = ngrok.get_tunnels() 
+        for tunnel in tunnels:
+            ngrok.disconnect(tunnel.public_url)
 
-    http_tunnel = ngrok.connect(app.config['APP_PORT'])
-    print(f' * RUNNING ON {http_tunnel.public_url}/client/index.html')
+        http_tunnel = ngrok.connect(app.config['APP_PORT'])
+        print(f' * RUNNING ON {http_tunnel.public_url}/client/index.html')
 
-    # we need to modify the js file to point to the ngrok url
-    script_path = f'{STATIC_FOLDER_PATH}/client/script.js'
-    orignal_text = "const SERVER_API_URL = 'http://localhost:5002';"
-    new_text = f"const SERVER_API_URL = '{http_tunnel.public_url}';"
-    with open(script_path, 'r') as f:
-        script = f.read()
-    script = script.replace(orignal_text, new_text)
-    with open(script_path, 'w') as f:
-        f.write(script)
+        # we need to modify the js file to point to the ngrok url
+        script_path = f'{STATIC_FOLDER_PATH}/client/script.js'
+        orignal_text = "const SERVER_API_URL = 'http://localhost:5002';"
+        new_text = f"const SERVER_API_URL = '{http_tunnel.public_url}';"
+        with open(script_path, 'r') as f:
+            script = f.read()
+        script = script.replace(orignal_text, new_text)
+        with open(script_path, 'w') as f:
+            f.write(script)
+    except:
+        pass
 
 
 

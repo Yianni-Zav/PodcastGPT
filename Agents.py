@@ -7,7 +7,7 @@ import API_Keys
 
 import openai
 
-import tiktoken
+
 
 openai.api_key = API_Keys.OPENAI_KEY
 OPENAI_MODEL = "gpt-3.5-turbo"

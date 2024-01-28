@@ -32,9 +32,9 @@ def get_word_level_transcript(audio_file_path):
     result = whisperx.align(result["segments"], model_a, metadata, audio, device, return_char_alignments=False)
 
     # temporary output file for testing
-    output_file = "/Users/rudolfkischer/Projects/PodcastGPT/static/audio/JoeRoganBenShapiroTEST.json"
-    with open(output_file, 'w') as outfile:
-        json.dump(result, outfile)
+    # output_file = "/Users/rudolfkischer/Projects/PodcastGPT/static/audio/JoeRoganBenShapiroTEST.json"
+    # with open(output_file, 'w') as outfile:
+    #     json.dump(result, outfile)
 
     diarize_model = whisperx.DiarizationPipeline(use_auth_token=access_token, device=device)
     diarize_segments = diarize_model(audio)
@@ -42,7 +42,8 @@ def get_word_level_transcript(audio_file_path):
     print(diarize_segments)
     print(result["segments"])
 
-    diarized_output_file = "/Users/rudolfkischer/Projects/PodcastGPT/static/audio/JoeRoganBenShapiroDIARIZED.json"
+    # put the word level transcript in the same folder as the audio file
+    diarized_output_file = audio_file_path.split('.')[0] + 'DIARIZED.json'
     with open(diarized_output_file, 'w') as outfile:
         json.dump(result, outfile)
     
@@ -101,7 +102,7 @@ def get_video_from_audio(audio_file_path,
     
     # diarized_transcript = get_word_level_transcript(audio_file_path)
     diarized_transcript = json.load(open(transcript_file_path))
-    personality_profiles = { personality: f'{PROFILES_PATH}/{personality}.jpg' for personality in PERSONALITIES }
+    personality_profiles = PERSONALITY_PROFILES
     guest_profile = personality_profiles[guest_name]
     host_profile = personality_profiles[host_name]
 
@@ -137,6 +138,8 @@ def get_video_from_audio(audio_file_path,
     final_clip = CompositeVideoClip(clips, size=(512,512)).set_duration(audio_clip.duration)
     final_clip = final_clip.set_audio(audio_clip)
     final_clip.write_videofile(f'{PODCASTS_PATH}/{guest_name}_{host_name}.mp4', fps=24)
+
+
 
 def main():
     # result = get_word_level_transcript(audio_file)

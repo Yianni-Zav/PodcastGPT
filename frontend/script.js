@@ -1,5 +1,8 @@
 
 
+
+const SERVER_API_URL = 'http://localhost:5002';
+
 // Get all celebrity cards
 const celebrityCards = document.querySelectorAll('.celebrity-card');
 
@@ -87,7 +90,8 @@ function sendPodcastData() {
     };
 
     // send data to backend using fetch 
-    fetch('http://localhost:5002/cast', {
+    var api_url = SERVER_API_URL + '/cast';
+    fetch(api_url, {
         method: 'POST',
         mode: 'cors',
         headers: {

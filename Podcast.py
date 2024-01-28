@@ -14,6 +14,7 @@ import API_Keys
 from PIL import Image
 from moviepy.editor import VideoFileClip, AudioFileClip, CompositeVideoClip, ImageClip
 
+from text_to_speach_demo import get_tts
 from settings import *
 
 
@@ -60,7 +61,7 @@ class Podcast:
         return out
 
     def generate_podcast(self):
-        for i in range(3):
+        for i in range(1):
             print(f'iteration: {i}')
             self.guest.prompt(self.host.get_latest_message().content.replace("as an AI language model",""))
             self.host.prompt(self.guest.get_latest_message().content.replace("as an AI language model",""))
@@ -75,10 +76,10 @@ Extract specific keywords or phrases that are central to the theme. Note any spe
 
 Give me your answer in this exact format.
 HOST:
-A blurb of information for the host and 10 bullet points including specific questions they should ask
+A blurb of information for the host and 3 bullet points including specific questions they should ask
 
 GUEST:
-A blurb of informaiton for the guest and  10 bullet points with key information for the guest to be able the host’s questions with stories, anecdotes, facts, and opinion.
+A blurb of informaiton for the guest and  3 bullet points with key information for the guest to be able the host’s questions with stories, anecdotes, facts, and opinion.
 
 
 Feel free to make up any information you want. 
@@ -87,9 +88,14 @@ Feel free to make up any information you want.
 
 
         input_string = narator.get_latest_message().content.split('GUEST')
-
-        self.host.prompt(f"you are going to interview me about: {input_string[0]} To start the interview, what would your first question be?")
-        self.guest.prompt(f"Today, I am going to interview you. here is the general topic of the interview: {input_string[1]}.  are you ready to start your interview? my next message will be my first question.")
+        self.host.prompt(f"you are going to interview me about: {input_string[0]} \
+                            pretend you are {self.host.name}. Ask your questions as if you are {self.host.name} and do not break character. You are interviewing {self.guest.name}. \
+                            Keep your answers conversational and breif. Try not to ramble. BE EXTREMELY CONCISE AND BREIF. MY GRANDMOTHER DOES NOT HAVE MUCH TIME TO LIE \
+                            To start the interview, what would your first question be?")
+        self.guest.prompt(f"Today, I am going to interview you. here is the general topic of the interview: {input_string[1]}. \
+                            Keep your answers conversational and breif. Try not to ramble.  BE EXTREMELY CONCISE AND BREIF. MY GRANDMOTHER DOES NOT HAVE MUCH TIME TO LIE \
+                            pretend you are {self.guest.name}. Ask your questions as if you are {self.guest.name} and do not break character. You are being interviewed by {self.host.name}. \
+                            Are you ready to start your interview? my next message will be my first question.")
         
 
 
@@ -129,23 +135,33 @@ Feel free to make up any information you want.
         host_b = True
 
         for message in pod:
-            if host_b:
-                tts = gTTS(message)
-                # response = podcast.tts(message,podcast.host.voice_id)
-            else:
-                tts = gTTS(message)
-                # response = podcast.tts(message,podcast.guest.voice_id)
-
-            filename = "clip" + str(mp3_count) + ".mp3"
-            
+            filename = f'clip{mp3_count}.mp3'
             filepath = os.path.join(directory, filename)
             mp3_paths += [filepath]
-
             if not os.path.exists(directory):
                 os.makedirs(directory)
+            try:
+                print("TRYING LOCAL TTS")
+                if host_b:
+                    sample_file = PERSONALITY_AUDIO_SAMPLES[self.host.name]
+                    print(sample_file)
+                    tts = get_tts(message, PERSONALITY_AUDIO_SAMPLES[self.host.name], filepath)
+                    # response = podcast.tts(message,podcast.host.voice_id)
+                else:
+                    print(sample_file)
+                    tts = get_tts(message, PERSONALITY_AUDIO_SAMPLES[self.guest.name], filepath)
+                print("USED LOCAL TTS")
+            except Exception as e:
+                print(e)
+                if host_b:
+                    tts = gTTS(message)
+                    # response = podcast.tts(message,podcast.host.voice_id)
+                else:
+                    tts = gTTS(message)
+                    # response = podcast.tts(message,podcast.guest.voice_id)
+                tts.save(filepath)
 
-            tts.save(filepath)
-            
+      
             durations += [MP3(filepath).info.length]
             mp3_count+=1
             host_b = not host_b

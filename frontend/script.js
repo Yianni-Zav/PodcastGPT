@@ -5,9 +5,9 @@ const celebrityCards = document.querySelectorAll('.celebrity-card');
 
 // Apply random float animations to each card
 celebrityCards.forEach(card => {
-    const randomDuration = Math.floor(Math.random() * 5) + 2; // Random duration between 2s and 7s
-    const randomDelay = Math.random() * 2; // Random delay between 0s and 2s
-    const randomAmplitude = Math.floor(Math.random() * 10) + 5; // Random amplitude between 5px and 15px
+    const randomDuration = Math.floor(Math.random() * 8) + 2; // Random duration between 2s and 7s
+    const randomDelay = Math.random() * 1.5; // Random delay between 0s and 2s
+    const randomAmplitude = Math.floor(Math.random() * 20) + 5; // Random amplitude between 5px and 15px
 
     card.style.animation = `floatAnimation ${randomDuration}s infinite alternate ease-in-out`;
     card.style.animationDelay = `-${randomDelay}s`;
@@ -70,31 +70,53 @@ function getDuration() {
 
 function sendPodcastData() {
 
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    loadingIndicator.style.display = 'flex';
+
     const podcastData = {
         host: hostName,
         guest: guestName,
         topic: episodeTopic,
         duration: Number(episodeDuration)
     };
+
+    setTimeout(function() {
+
+        // send data to backend using fetch 
+        fetch('http://localhost:5002/cast', {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(podcastData),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Data sent to the backend:', data);
+            // Add any additional logic here based on the backend response
+            const videoUrl = data.video;
+            // Set the video source dynamically
+            const videoElement = document.getElementById('podcast-video');
+
+            // Show the video element
+            videoElement.style.display = 'block';
+
+            // Hide the loading indicator
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            loadingIndicator.style.display = 'none';
+
+            videoElement.src = videoUrl;
+        })
+        .catch(error => {
+            console.error('Error sending data to the backend:', error);
+            // Handle errors if needed
+            // Hide the loading indicator in case of an error
+            loadingIndicator.style.display = 'none';
+        });
+
+    },4000)
     
-    // send data to backend using fetch 
-    fetch('http://localhost:5002/cast', {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(podcastData),
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Data sent to the backend:', data);
-        // Add any additional logic here based on the backend response
-    })
-    .catch(error => {
-        console.error('Error sending data to the backend:', error);
-        // Handle errors if needed
-    });
 }
 
 document.getElementById('generateButton').addEventListener('click', function() {

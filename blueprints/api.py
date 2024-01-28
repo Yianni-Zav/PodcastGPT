@@ -55,19 +55,28 @@ class CastAPI(MethodView):
         video_path= get_podcast(request.json['guest'], 
                                  request.json['host'], 
                                  request.json['topic'], 
+<<<<<<< Updated upstream
                                  request.json['duration']) 
         # transcript_file_path = get_word_level_transcript(audio_podcast_file)
         # video_path = get_video_from_audio(audio_podcast_file, transcript_file_path, request.json['guest'], request.json['host'])
         
          
         # video_path = path.join(current_app.config['PODCASTS_PATH'], video_name)
+=======
+                                 request.json['duration'])  
+        video_path = path.join(current_app.config['PODCASTS_PATH'], video_name)
+        print(video_path)
+        video_url = url_for('static', filename=video_path.split('static/')[1], _external=True)
+        print(video_url)
+>>>>>>> Stashed changes
         if path.exists(video_path):
             body = {
                 'guest': request.json['guest'],
                 'host': request.json['host'],
                 'topic': request.json['topic'],
                 'duration': request.json['duration'],
-                'video_url': url_for('static', filename=video_path.split('static/')[1], _external=True)
+                'video': video_url
+                # 'video_url': url_for('static', filename=video_path.split('static/')[1], _external=True)
             }
             return make_response(body, 200)
         else:

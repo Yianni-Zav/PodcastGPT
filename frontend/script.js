@@ -14,18 +14,6 @@ celebrityCards.forEach(card => {
     card.style.transform = `translateY(${randomAmplitude}px)`;
 });
 
-//   function selectCard(selectedCard) {
-//     // Clear previous selections
-//     clearSelections();
-
-//     // Highlight the selected container
-//     selectedCard.classList.add('selected-card');
-
-//     // Retrieve the celebrity name from the selected container
-//     const name = selectedContainer.querySelector('.name').innerText;
-//     console.log("Selected Celebrity:", name);
-// }
-
 // variables to store selected data 
 var hostName;
 var guestName;
@@ -86,12 +74,13 @@ function sendPodcastData() {
         host: hostName,
         guest: guestName,
         topic: episodeTopic,
-        duration: episodeDuration
+        duration: Number(episodeDuration)
     };
     
     // send data to backend using fetch 
-    fetch('your-backend-endpoint', {
+    fetch('http://localhost:5002/cast', {
         method: 'POST',
+        mode: 'cors',
         headers: {
             'Content-Type': 'application/json',
         },

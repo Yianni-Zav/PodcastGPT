@@ -133,21 +133,3 @@ document.getElementById('generateButton').addEventListener('click', function() {
     // Call the function to send data to the backend
     sendPodcastData();
 });
-
-document.addEventListener('mousemove', (e) => {
-    const cursor = document.getElementById('cursor');
-    cursor.style.left = e.pageX + 'px';
-    cursor.style.top = e.pageY + 'px';
-});
-
-document.addEventListener('mouseenter', () => {
-    const cursor = document.getElementById('cursor');
-    cursor.style.width = '200px';
-    cursor.style.height = '200px';
-});
-
-document.addEventListener('mouseleave', () => {
-    const cursor = document.getElementById('cursor');
-    cursor.style.width = '500px';
-    cursor.style.height = '500px';
-});

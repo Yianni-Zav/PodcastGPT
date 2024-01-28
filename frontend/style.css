@@ -215,20 +215,3 @@ input {
     z-index: 0; /* Places the ball in the background */
 
 }
-
-.glowing-ball {
-    position: fixed;
-    z-index: -1; /* Places the ball in the background */
-    width: 500px;
-    height: 500px;
-    border-radius: 50%;
-    background-color: #00f;
-    box-shadow: 0 0 20px 10px #00f; /* Adds a glowing effect */
-    pointer-events: none;
-    transition: width 0.2s ease, height 0.2s ease, box-shadow 0.2s ease;
-    will-change: box-shadow;
-}
-
-.glowing-ball.enlarged {
-    transform: scale(1.5); /* Increase the scale factor for a larger size */
-}

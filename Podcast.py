@@ -140,19 +140,28 @@ Feel free to make up any information you want.
             mp3_paths += [filepath]
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            try:
-                print("TRYING LOCAL TTS")
-                if host_b:
-                    sample_file = PERSONALITY_AUDIO_SAMPLES[self.host.name]
-                    print(sample_file)
-                    tts = get_tts(message, PERSONALITY_AUDIO_SAMPLES[self.host.name], filepath)
-                    # response = podcast.tts(message,podcast.host.voice_id)
-                else:
-                    print(sample_file)
-                    tts = get_tts(message, PERSONALITY_AUDIO_SAMPLES[self.guest.name], filepath)
-                print("USED LOCAL TTS")
-            except Exception as e:
-                print(e)
+            if LOCAL_TTS_ON:
+                try:
+                    print("TRYING LOCAL TTS")
+                    if host_b:
+                        sample_file = PERSONALITY_AUDIO_SAMPLES[self.host.name]
+                        print(sample_file)
+                        tts = get_tts(message, PERSONALITY_AUDIO_SAMPLES[self.host.name], filepath)
+                        # response = podcast.tts(message,podcast.host.voice_id)
+                    else:
+                        print(sample_file)
+                        tts = get_tts(message, PERSONALITY_AUDIO_SAMPLES[self.guest.name], filepath)
+                    print("USED LOCAL TTS")
+                except Exception as e:
+                    print(e)
+                    if host_b:
+                        tts = gTTS(message)
+                        # response = podcast.tts(message,podcast.host.voice_id)
+                    else:
+                        tts = gTTS(message)
+                        # response = podcast.tts(message,podcast.guest.voice_id)
+                    tts.save(filepath)
+            else:
                 if host_b:
                     tts = gTTS(message)
                     # response = podcast.tts(message,podcast.host.voice_id)
@@ -160,6 +169,7 @@ Feel free to make up any information you want.
                     tts = gTTS(message)
                     # response = podcast.tts(message,podcast.guest.voice_id)
                 tts.save(filepath)
+
 
       
             durations += [MP3(filepath).info.length]

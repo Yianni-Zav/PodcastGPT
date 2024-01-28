@@ -114,6 +114,18 @@ ngrok http 5002
 
 # Profile image cropping
 
+# Credits
+
+This project utilizes the capabilities of ChatGPT, a language model developed by OpenAI. ChatGPT is powered by GPT-3.5, a state-of-the-art language model that can understand and generate human-like text based on the input it receives.
+
+- **OpenAI:** The development and research organization behind GPT-3.5 and ChatGPT. Visit [OpenAI's website](https://www.openai.com/) for more information.
+
+- **ChatGPT:** The specific implementation of the language model used in this project. For more details and access to the API, visit [ChatGPT](https://beta.openai.com/signup/).
+
+When using this project, it's important to comply with OpenAI's usage policies and guidelines. Refer to OpenAI's documentation for information on how to responsibly use ChatGPT in your applications.
+
+
+
 - to crop the profile images to a square use the following command
 ```
 ffmpeg -i lex_fridman.jpg -vf "scale='if(gt(iw/ih,1),512*(iw/ih),512)':'if(gt(iw/ih,1),512,512*(ih/iw))',crop=512:512" lex_fridman1.jpg
